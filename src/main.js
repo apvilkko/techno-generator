@@ -1,12 +1,20 @@
 import {init as initSequencer, tick, start} from './sequencer';
+import {init as initLoader} from './loader';
+import {init as initPlayer, loadPlayer} from './player';
+import {withDebug} from './debug';
+
+const context = new (window.AudioContext || window.webkitAudioContext)();
 
 const state = {
-  context: new (window.AudioContext || window.webkitAudioContext)(),
+  context,
+  sequencer: initSequencer(context),
+  player: initPlayer(context),
+  loader: initLoader(),
 };
-state.sequencer = initSequencer(state.context);
 
 const worker = new Worker('/worker.js');
 worker.postMessage('start');
-worker.onmessage = () => tick(state);
+worker.onmessage = () => withDebug(tick)(state);
 
+loadPlayer(state);
 start(state);

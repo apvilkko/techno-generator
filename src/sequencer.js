@@ -1,4 +1,5 @@
 import {commit} from './state';
+import {play} from './player';
 
 export const init = context => ({
   playing: false,
@@ -7,9 +8,10 @@ export const init = context => ({
   shufflePercentage: 0,
   noteLength: 0.25,
   nextNoteTime: context.currentTime,
-  tempo: 120,
+  tempo: 125,
   pattern: {
-    BD: [{velocity: 255}, {}, {}, {}]
+    BD: [{velocity: 255, pitch: 0}, {}, {}, {}, {}, {}, {}, {}],
+    SN: [{}, {}, {}, {}, {velocity: 255, pitch: 0}, {}, {}, {}],
   }
 });
 
@@ -19,7 +21,7 @@ const scheduleNote = state => {
     const track = pattern[key];
     const note = track[currentNote % track.length];
     if (note.velocity) {
-      console.log(currentNote, note.velocity);
+      play(state, key, note);
     }
   });
 };
@@ -36,8 +38,8 @@ const nextNote = state => {
   } = state;
   const shuffleAmount = 1.0 - (shufflePercentage / 150.0);
   const noteLen = ((currentNote % 2) ? shuffleAmount : (2.0 - shuffleAmount)) * noteLength;
-  commit(state, 'sequencer.nextNoteTime', nextNoteTime + (noteLen * (60.0 / tempo)));
   const nextNote = currentNote === (256 + 128) ? -1 : currentNote;
+  commit(state, 'sequencer.nextNoteTime', nextNoteTime + (noteLen * (60.0 / tempo)));
   commit(state, 'sequencer.currentNote', nextNote + 1);
 };
 
