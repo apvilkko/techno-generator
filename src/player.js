@@ -31,7 +31,7 @@ export const loadPlayer = state => {
   loadSound(state, 'SN', 'cl1');
 };
 
-const getRateFromPitch = (pitch) => Math.pow(2, (pitch * 100) / 1200);
+const getRateFromPitch = pitch => Math.pow(2, (pitch * 100) / 1200);
 
 export const play = (state, key, note) => {
   const {player: {mixer, samples}, context, loader: {buffers}} = state;
