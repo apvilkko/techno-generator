@@ -1,5 +1,6 @@
 import {commit} from './state';
 import {play} from './player';
+import {createPattern} from './pattern';
 
 export const init = context => ({
   playing: false,
@@ -9,10 +10,7 @@ export const init = context => ({
   noteLength: 0.25,
   nextNoteTime: context.currentTime,
   tempo: 125,
-  pattern: {
-    BD: [{velocity: 255, pitch: 0}, {}, {}, {}, {}, {}, {}, {}],
-    SN: [{}, {}, {}, {}, {velocity: 255, pitch: 0}, {}, {}, {}],
-  }
+  pattern: createPattern(),
 });
 
 const scheduleNote = state => {
