@@ -1,21 +1,20 @@
 import {loadSample} from './loader';
 import {commit} from './state';
+import {createVCA} from './vca';
+import {playSample} from './sampler';
+import {createReverb} from './reverb';
+import {connect, disconnect} from './util';
 
-const createVCA = (context, gain = 0.5, destination) => {
-  const node = context.createGain();
-  node.gain.value = gain;
-  node.connect(destination || context.destination);
-  return node;
-};
-
+const createTrack = ({gain}) => ({gain, inserts: []});
 
 export const init = context => {
-  const masterGain = createVCA(context, 0.5);
+  const masterGain = createVCA({context, gain: 0.5});
+  const snGain = createVCA({context, gain: 0.8, destination: masterGain});
   return {
     mixer: {
-      master: {gain: masterGain},
-      BD: {gain: createVCA(context, 0.8, masterGain)},
-      SN: {gain: createVCA(context, 0.8, masterGain)},
+      master: createTrack({gain: masterGain}),
+      BD: createTrack({gain: createVCA({context, gain: 0.8, destination: masterGain})}),
+      SN: createTrack({gain: snGain}),
     },
     samples: {}
   };
@@ -26,24 +25,43 @@ const loadSound = (state, key, sound) => {
   commit(state, ['player', 'samples', key], sound);
 };
 
+const addInsert = (state, key, node) => {
+  const {player: {mixer}} = state;
+  const inserts = mixer[key].inserts;
+  if (inserts.length > 0) {
+    inserts[inserts.length - 1].disconnect(mixer.master.gain);
+  }
+  if (inserts.length === 0) {
+    disconnect(mixer[key].gain, mixer.master.gain);
+    connect(mixer[key].gain, node);
+  }
+  connect(node, mixer.master.gain);
+  commit(state, ['player', 'mixer', key, 'inserts'], inserts.concat(node));
+};
+
 export const loadPlayer = state => {
   loadSound(state, 'BD', 'bd1');
   loadSound(state, 'SN', 'cl1');
+  const {context} = state;
+  loadSample(state, 'impulse1').then(() => {
+    const reverb = createReverb({context, buffer: state.loader.buffers.impulse1});
+    addInsert(state, 'SN', reverb);
+    const reverb2 = createReverb({context, buffer: state.loader.buffers.impulse1});
+    addInsert(state, 'BD', reverb2);
+  });
 };
 
-const getRateFromPitch = pitch => Math.pow(2, (pitch * 100) / 1200);
+const getDestination = track => track.gain;
 
 export const play = (state, key, note) => {
   const {player: {mixer, samples}, context, loader: {buffers}} = state;
   const buffer = buffers[samples[key]];
   if (buffer) {
-    const bufferSource = context.createBufferSource();
-    bufferSource.buffer = buffer;
-    bufferSource.connect(mixer[key].gain);
-    bufferSource.start(0);
-    if (note.pitch !== null && note.pitch !== 0) {
-      bufferSource.playbackRate.value = getRateFromPitch(note.pitch);
-    }
-    //trigger(this.name + '_AEnvelope_gateOn', note.velocity);
+    playSample({
+      context,
+      destination: getDestination(mixer[key]),
+      buffer,
+      pitch: note.pitch
+    });
   }
 };
