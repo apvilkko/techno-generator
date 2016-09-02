@@ -8,13 +8,17 @@ const doRequest = (name, url) => fetch(url).then(response => response.arrayBuffe
 
 export const loadSample = (state, name) => {
   const {loader: {buffers}} = state;
-  if (!buffers[name]) {
+  return new Promise(resolve => {
+    if (buffers[name]) {
+      resolve();
+      return;
+    }
     const url = `samples/${name}.ogg`;
-    return doRequest(name, url).then(rawBuffer => {
+    doRequest(name, url).then(rawBuffer => {
       state.context.decodeAudioData(rawBuffer, buffer => {
         commit(state, ['loader', 'buffers', name], buffer);
+        resolve();
       }, () => {});
     });
-  }
-  return Promise.resolve();
+  });
 };

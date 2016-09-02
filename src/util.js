@@ -1,28 +1,22 @@
+const log = (from, to, disconnect) => console.log( // eslint-disable-line
+  disconnect ? 'disconnect' : 'connect',
+  Object.prototype.toString.call(from),
+  '=>',
+  Object.prototype.toString.call(to)
+);
+
 export const connect = (from, to) => {
-  console.log(
-    'connect',
-    Object.prototype.toString.call(from),
-    'to',
-    Object.prototype.toString.call(to)
-  );
-  from.connect(to);
+  log(from, to);
+  (from.output ? from.output : from).connect(to.input ? to.input : to);
 };
 
 export const disconnect = (node, from) => {
   if (from) {
-    console.log(
-      'disconnect',
-      Object.prototype.toString.call(node),
-      'from',
-      Object.prototype.toString.call(from)
-    );
+    log(node, from, true);
     node.disconnect(from);
     return;
   }
-  console.log(
-    'disconnect',
-    Object.prototype.toString.call(node)
-  );
+  log(node, null, true);
   node.disconnect();
 };
 

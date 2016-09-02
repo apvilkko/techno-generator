@@ -8,7 +8,7 @@ import {connect, disconnect} from './util';
 const createTrack = ({gain}) => ({gain, inserts: []});
 
 export const init = context => {
-  const masterGain = createVCA({context, gain: 0.5});
+  const masterGain = createVCA({context, gain: 0.5, destination: context.destination});
   const snGain = createVCA({context, gain: 0.8, destination: masterGain});
   return {
     mixer: {
@@ -25,7 +25,7 @@ const loadSound = (state, key, sound) => {
   commit(state, ['player', 'samples', key], sound);
 };
 
-const addInsert = (state, key, node) => {
+const addInsert = (state, key, insertEffect) => {
   const {player: {mixer}} = state;
   const inserts = mixer[key].inserts;
   if (inserts.length > 0) {
@@ -33,10 +33,23 @@ const addInsert = (state, key, node) => {
   }
   if (inserts.length === 0) {
     disconnect(mixer[key].gain, mixer.master.gain);
-    connect(mixer[key].gain, node);
+    connect(mixer[key].gain, insertEffect);
   }
-  connect(node, mixer.master.gain);
-  commit(state, ['player', 'mixer', key, 'inserts'], inserts.concat(node));
+  connect(insertEffect, mixer.master.gain);
+  commit(state, ['player', 'mixer', key, 'inserts'], inserts.concat(insertEffect));
+};
+
+const createInsertEffect = ({context, effect}) => {
+  const dry = createVCA({context, gain: 0.8});
+  const wet = createVCA({context, gain: 0.5});
+  const input = createVCA({context, gain: 1});
+  const output = createVCA({context, gain: 1});
+  connect(input, dry);
+  connect(input, effect);
+  connect(effect, wet);
+  connect(wet, output);
+  connect(dry, output);
+  return {dry, wet, effect, input, output};
 };
 
 export const loadPlayer = state => {
@@ -44,10 +57,10 @@ export const loadPlayer = state => {
   loadSound(state, 'SN', 'cl1');
   const {context} = state;
   loadSample(state, 'impulse1').then(() => {
-    const reverb = createReverb({context, buffer: state.loader.buffers.impulse1});
-    addInsert(state, 'SN', reverb);
-    const reverb2 = createReverb({context, buffer: state.loader.buffers.impulse1});
-    addInsert(state, 'BD', reverb2);
+    const reverb = createInsertEffect({context,
+      effect: createReverb({context, buffer: state.loader.buffers.impulse1})
+    });
+    addInsert(state, 'BD', reverb);
   });
 };
 
