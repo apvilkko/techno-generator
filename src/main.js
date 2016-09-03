@@ -1,6 +1,6 @@
 import {init as initSequencer, tick, start} from './sequencer';
 import {init as initLoader} from './loader';
-import {init as initPlayer, loadPlayer} from './player';
+import {init as initPlayer, initMixer, loadPlayer} from './player';
 import {init as initEvents} from './events';
 import {init as initScene, createScene} from './scene';
 import {startTick} from './worker';
@@ -17,6 +17,7 @@ const state = {
 
 startTick(state, tick);
 initEvents(document, state);
+initMixer(state);
 createScene(state);
 loadPlayer(state);
 start(state);

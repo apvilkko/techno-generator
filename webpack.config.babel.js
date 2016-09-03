@@ -9,7 +9,8 @@ export default {
   ],
   output: {
     publicPath: '/',
-    filename: 'main.js'
+    filename: 'main.js',
+    path: path.join(__dirname, 'dist'),
   },
   debug: true,
   devtool: 'source-map',

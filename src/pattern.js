@@ -1,7 +1,7 @@
-import {randRange, rand} from './util';
+import {randRange, rand, maybe} from './util';
 import tracks from './tracks';
 import {
-  FOURBYFOUR, TWOANDFOUR, BROKEN, RANDBUSY, OFFBEATS, RANDSPARSE
+  FOURBYFOUR, TWOANDFOUR, BROKEN, RANDBUSY, OFFBEATS, RANDSPARSE, OCCASIONAL
 } from './styles';
 
 const createNote = (velocity = 0, pitch = null) => ({velocity, pitch});
@@ -11,13 +11,40 @@ const iteratePattern = ({patternLength, pitch}, iterator) =>
 
 const prefs = {
   [tracks.BD]: {
-    patternLength: () => (rand(50) ? 8 : 16)
+    patternLength: () => maybe(50, 8, 16),
+    pitch: () => randRange(-2, 2),
+  },
+  [tracks.BS]: {
+    patternLength: () => maybe(50, 8, maybe(50, 4, 16)),
+    pitch: () => randRange(-2, 6),
   },
   [tracks.CL]: {
-    patternLength: () => (rand(50) ? 8 : 16)
+    patternLength: () => maybe(50, 8, 16),
+    pitch: () => randRange(-2, 2),
+  },
+  [tracks.SN]: {
+    patternLength: () => maybe(50, 8, 16),
+    pitch: () => randRange(-2, 2),
   },
   [tracks.HC]: {
-    patternLength: () => (rand(50) ? 8 : 16)
+    patternLength: () => maybe(50, 8, 16),
+    pitch: () => randRange(-2, 2),
+  },
+  [tracks.HO]: {
+    patternLength: () => maybe(50, 8, 16),
+    pitch: () => randRange(-2, 2),
+  },
+  [tracks.PR]: {
+    patternLength: () => maybe(50, 8, 16),
+    pitch: () => randRange(-2, 2),
+  },
+  [tracks.ST]: {
+    patternLength: () => maybe(50, 32, maybe(60, 64, 16)),
+    pitch: () => randRange(-6, 6),
+  },
+  [tracks.RD]: {
+    patternLength: () => maybe(50, 8, 16),
+    pitch: () => randRange(-2, 2),
   }
 };
 
@@ -50,6 +77,12 @@ const styleIterator = {
     }
     return createNote();
   },
+  [OCCASIONAL]: (i, pitch) => {
+    if (rand(5)) {
+      return createNote(randRange(64, 127), pitch);
+    }
+    return createNote();
+  },
   [TWOANDFOUR]: (i, pitch) => {
     if ((i + 4) % 8 === 0) {
       return createNote(127, pitch);
@@ -71,7 +104,7 @@ const styleIterator = {
 };
 
 export const createPattern = (track, style) => {
-  const pitch = randRange(-2, 2);
+  const pitch = prefs[track].pitch();
   const patternLength = prefs[track].patternLength();
   return iteratePattern({patternLength, pitch}, styleIterator[style]);
 };
