@@ -7,3 +7,8 @@ export const withDebug = fn => state => {
     debugEl.innerHTML = JSON.stringify(state, null, 2);
   }
 };
+
+export const debugMessage = message => fn => {
+  console.log(message); // eslint-disable-line
+  return fn();
+};

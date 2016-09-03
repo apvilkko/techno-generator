@@ -1,22 +1,18 @@
 import {commit} from './state';
 import {play} from './player';
-import {createPattern} from './pattern';
 
 export const init = context => ({
   playing: false,
   scheduleAheadTime: 0.1,
   currentNote: 0,
-  shufflePercentage: 0,
   noteLength: 0.25,
   nextNoteTime: context.currentTime,
-  tempo: 125,
-  pattern: createPattern(),
 });
 
 const scheduleNote = state => {
-  const {sequencer: {pattern, currentNote}} = state;
-  Object.keys(pattern).forEach(key => {
-    const track = pattern[key];
+  const {sequencer: {currentNote}, scene} = state;
+  Object.keys(scene.parts).forEach(key => {
+    const track = scene.parts[key].pattern;
     const note = track[currentNote % track.length];
     if (note.velocity) {
       play(state, key, note);
@@ -27,16 +23,19 @@ const scheduleNote = state => {
 const nextNote = state => {
   const {
     sequencer: {
-      shufflePercentage,
       currentNote,
       noteLength,
       nextNoteTime,
+    },
+    scene: {
+      shufflePercentage,
       tempo,
     }
   } = state;
   const shuffleAmount = 1.0 - (shufflePercentage / 150.0);
   const noteLen = ((currentNote % 2) ? shuffleAmount : (2.0 - shuffleAmount)) * noteLength;
-  const nextNote = currentNote === (256 + 128) ? -1 : currentNote;
+  const seqLength = 256;
+  const nextNote = currentNote === (seqLength - 1) ? -1 : currentNote;
   commit(state, 'sequencer.nextNoteTime', nextNoteTime + (noteLen * (60.0 / tempo)));
   commit(state, 'sequencer.currentNote', nextNote + 1);
 };

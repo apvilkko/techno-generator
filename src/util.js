@@ -24,3 +24,8 @@ export const randRange = (min, max) =>
   min + Math.floor(Math.random() * (max - min + 1));
 
 export const rand = value => Math.random() < (value / 100.0);
+
+export const maybe = (prob, opt1, opt2) => (rand(prob) ? opt1 : opt2);
+
+export const sample = arr =>
+  (arr.length > 0 ? arr[randRange(0, arr.length - 1)] : undefined);

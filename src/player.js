@@ -4,17 +4,20 @@ import {createVCA} from './vca';
 import {playSample} from './sampler';
 import {createReverb} from './reverb';
 import {connect, disconnect} from './util';
+import tracks from './tracks';
 
 const createTrack = ({gain}) => ({gain, inserts: []});
 
 export const init = context => {
   const masterGain = createVCA({context, gain: 0.5, destination: context.destination});
   const snGain = createVCA({context, gain: 0.8, destination: masterGain});
+  const hcGain = createVCA({context, gain: 0.8, destination: masterGain});
   return {
     mixer: {
       master: createTrack({gain: masterGain}),
-      BD: createTrack({gain: createVCA({context, gain: 0.8, destination: masterGain})}),
-      SN: createTrack({gain: snGain}),
+      [tracks.BD]: createTrack({gain: createVCA({context, gain: 0.8, destination: masterGain})}),
+      [tracks.CL]: createTrack({gain: snGain}),
+      [tracks.HC]: createTrack({gain: hcGain}),
     },
     samples: {}
   };
@@ -53,14 +56,15 @@ const createInsertEffect = ({context, effect}) => {
 };
 
 export const loadPlayer = state => {
-  loadSound(state, 'BD', 'bd1');
-  loadSound(state, 'SN', 'cl1');
+  loadSound(state, tracks.BD, 'bd1');
+  loadSound(state, tracks.CL, 'cl1');
+  loadSound(state, tracks.HC, 'hc1');
   const {context} = state;
   loadSample(state, 'impulse1').then(() => {
     const reverb = createInsertEffect({context,
       effect: createReverb({context, buffer: state.loader.buffers.impulse1})
     });
-    addInsert(state, 'BD', reverb);
+    addInsert(state, tracks.BD, reverb);
   });
 };
 
