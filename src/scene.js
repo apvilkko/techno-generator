@@ -6,7 +6,7 @@ import styles, {
   FOURBYFOUR, BROKEN, OFFBEATS, RANDBUSY, TWOANDFOUR, RANDSPARSE, OCCASIONAL
 } from './styles';
 import catalog from './catalog';
-import {setCurveAmount} from './waveshaper';
+import {setCurveAmount} from './components/waveshaper';
 import {loadSound} from './player';
 
 const getInitialState = () => ({

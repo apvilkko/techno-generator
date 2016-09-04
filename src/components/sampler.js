@@ -1,4 +1,4 @@
-//import {connect} from './util';
+//import {connect} from '../util';
 
 const getRateFromPitch = pitch => Math.pow(2, (pitch * 100) / 1200);
 

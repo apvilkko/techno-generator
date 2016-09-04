@@ -1,4 +1,4 @@
-import {connect} from './util';
+import {connect} from '../util';
 
 export const createReverb = ({context, destination, buffer}) => {
   const node = context.createConvolver();

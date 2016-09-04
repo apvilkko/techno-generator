@@ -1,11 +1,11 @@
 import {loadSample} from './loader';
 import {commit} from './state';
-import {createVCA} from './vca';
-import {createCompressor} from './compressor';
-import {createWaveShaper} from './waveshaper';
-import {playSample} from './sampler';
-import {createReverb} from './reverb';
-import {triggerEnvelope} from './envelope';
+import {createVCA} from './components/vca';
+import {createCompressor} from './components/compressor';
+import {createWaveShaper} from './components/waveshaper';
+import {playSample} from './components/sampler';
+import {createReverb} from './components/reverb';
+import {triggerEnvelope} from './components/envelope';
 import {connect, disconnect, randRange} from './util';
 import tracks from './tracks';
 

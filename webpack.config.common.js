@@ -1,4 +1,5 @@
 import path from 'path';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export default {
   entry: [
@@ -7,7 +8,7 @@ export default {
     './src/main'
   ],
   output: {
-    publicPath: '/',
+    publicPath: '',
     filename: 'main.js',
     path: path.join(__dirname, 'dist'),
   },
@@ -28,5 +29,11 @@ export default {
   },
   devServer: {
     contentBase: './src'
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: 'src/template/index.html',
+    })
+  ],
 };

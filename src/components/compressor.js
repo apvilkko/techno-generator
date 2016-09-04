@@ -1,4 +1,4 @@
-import {connect} from './util';
+import {connect} from '../util';
 
 export const createCompressor = ({context, destination}) => {
   const node = context.createDynamicsCompressor();

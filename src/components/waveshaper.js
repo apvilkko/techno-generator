@@ -1,4 +1,4 @@
-import {connect} from './util';
+import {connect} from '../util';
 
 const makeDistortionCurve = amount => {
   const k = amount;
