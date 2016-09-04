@@ -22,17 +22,11 @@ const randomizeStyle = (styles, track) => {
     case tracks.BD:
       return maybe(75, FOURBYFOUR, BROKEN);
     case tracks.CL:
-      return maybe(33, TWOANDFOUR,
-               maybe(33, FOURBYFOUR,
-                 sample(styles)));
+      return maybe({33: TWOANDFOUR, 20: FOURBYFOUR, rest: sample(styles)});
     case tracks.HO:
-      return maybe(75, OFFBEATS,
-               maybe(50, FOURBYFOUR,
-                 sample(styles)));
+      return maybe({75: OFFBEATS, 13: FOURBYFOUR, rest: sample(styles)});
     case tracks.RD:
-      return maybe(50, OFFBEATS,
-               maybe(75, FOURBYFOUR,
-                 sample(styles)));
+      return maybe({50: OFFBEATS, 32: FOURBYFOUR, rest: sample(styles)});
     case tracks.HC:
       return maybe(75, RANDBUSY,
                sample([BROKEN, TWOANDFOUR, RANDSPARSE, FOURBYFOUR, OFFBEATS]));

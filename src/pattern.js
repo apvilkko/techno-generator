@@ -15,7 +15,7 @@ const prefs = {
     pitch: () => randRange(-2, 2),
   },
   [tracks.BS]: {
-    patternLength: () => maybe(50, 8, maybe(50, 4, 16)),
+    patternLength: () => maybe({50: 8, 25: 4, rest: 16}),
     pitch: () => randRange(-2, 6),
   },
   [tracks.CL]: {
@@ -39,7 +39,7 @@ const prefs = {
     pitch: () => randRange(-2, 2),
   },
   [tracks.ST]: {
-    patternLength: () => maybe(50, 32, maybe(60, 64, 16)),
+    patternLength: () => maybe({50: 32, 30: 64, rest: 16}),
     pitch: () => randRange(-6, 6),
   },
   [tracks.RD]: {

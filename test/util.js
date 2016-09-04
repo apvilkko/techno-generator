@@ -14,5 +14,17 @@ describe('util', () => {
         assert.strictEqual(maybe(0, 1, 0), 0);
       }
     });
+
+    it('always takes the option with 100 with a set', () => {
+      for (let i = 0; i < 10; ++i) {
+        assert.strictEqual(maybe({100: 1, 0: 2}), 1);
+      }
+    });
+
+    it('supports "rest" notation', () => {
+      for (let i = 0; i < 10; ++i) {
+        assert.strictEqual(maybe({rest: 2, 0: 1}), 2);
+      }
+    });
   });
 });
