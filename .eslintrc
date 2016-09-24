@@ -29,6 +29,7 @@
     "no-shadow": 0,
     "spaced-comment": 0,
     "arrow-parens": ["error", "as-needed"],
+    "no-param-reassign": ["error", {"props": false}]
   },
   "plugins": [
     "import"

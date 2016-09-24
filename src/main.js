@@ -4,6 +4,7 @@ import {init as initPlayer, initMixer, loadPlayer} from './player';
 import {init as initEvents} from './events';
 import {init as initScene, createScene} from './scene';
 import {startTick} from './worker';
+import {init} from './stateful-web-audio';
 
 const context = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -21,3 +22,6 @@ initMixer(state);
 createScene(state);
 loadPlayer(state);
 start(state);
+
+const {state2, instances} = init();
+//start(state2);
