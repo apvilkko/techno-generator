@@ -1,6 +1,16 @@
+import {startTick} from './src/worker';
+import * as seq from './src/sequencer';
+import * as scene from './src/scene';
+
+export const start = ctx => {
+  startTick(ctx, seq.tick);
+  seq.start(ctx);
+};
+
 const initialState = {
   instances: {},
-  sequencer: {},
+  sequencer: seq.initialState,
+  scene: scene.initialState,
 };
 
 const reinitInstances = state => {
@@ -16,22 +26,22 @@ const addInstance = (state, id, name) => ({
   }
 });
 
-const reinit = (oldState, instances) => {
+const initAudioContext = runtime => {
+  runtime.instances.context = new (window.AudioContext || window.webkitAudioContext)();
+};
+
+const reinit = oldState => {
   const state = oldState || initialState;
-  if (state.instances) {
-    return reinitInstances(state);
-  }
   const id = 'context';
-  instances[id] = new (window.AudioContext || window.webkitAudioContext)();
-  return addInstance(state, id, 'AudioContext');
+  return reinitInstances(addInstance(state, id, 'AudioContext'));
 };
 
 export const init = (oldState = null) => {
-  const instances = {};
-  const state = reinit(oldState, instances);
-  return {state, instances};
-};
-
-export const start = state => {
-
+  const runtime = {instances: {}};
+  initAudioContext(runtime);
+  const seqRuntime = seq.initialRuntime(runtime);
+  runtime.sequencer = seqRuntime;
+  const state = reinit(oldState);
+  console.log(runtime, runtime.sequencer, seqRuntime);
+  return {state, runtime};
 };

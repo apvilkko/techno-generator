@@ -1,4 +1,6 @@
-import {loadSample} from './loader';
+import {getContext} from './util';
+
+/*import {loadSample} from './loader';
 import {commit} from './state';
 import {createVCA} from './components/vca';
 import {createCompressor} from './components/compressor';
@@ -127,12 +129,20 @@ const gateOn = (context, destination, buffer, note) => {
     sustain: normalizeVelocity(note.velocity)
   });
 };
+*/
 
-export const play = (state, key, note) => {
-  const {player: {mixer, samples}, context, loader: {buffers}} = state;
-  const buffer = buffers[samples[key]];
+export const play = (ctx, key, note) => {
+  console.log("play", key, note);
+  /*const {
+    state: {
+      player: {mixer, samples},
+      loader: {buffers}
+    }
+  } = ctx;*/
+  const context = getContext(ctx);
+  /*const buffer = buffers[samples[key]];
   const destination = getDestination(mixer[key]);
   if (buffer) {
     gateOn(context, destination, buffer, note);
-  }
+  }*/
 };
