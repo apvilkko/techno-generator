@@ -17,7 +17,7 @@ export const setCurveAmount = (node, amount) => {
   node.curve = makeDistortionCurve(amount); // eslint-disable-line
 };
 
-export const createWaveShaper = ({context, destination, amount = 40}) => {
+export const createWaveshaper = ({context, destination, amount = 40}) => {
   const node = context.createWaveShaper();
   setCurveAmount(node, amount);
   node.oversample = '4x';

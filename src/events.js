@@ -1,7 +1,6 @@
-import {createScene} from './scene';
 import {debugMessage} from './debug';
 
-export const init = (document, state) => {
+export const init = (document, newFn) => {
   document.getElementById('new').addEventListener('click',
-    () => debugMessage('new scene')(() => createScene(state)));
+    () => debugMessage('new scene')(newFn));
 };

@@ -1,27 +1,48 @@
-/* import {init as initSequencer, tick, start} from './sequencer';
-import {init as initLoader} from './loader';
-import {init as initPlayer, initMixer, loadPlayer} from './player';
+import {
+  init,
+  start,
+  setScene,
+  createMixer,
+  createInsertEffect,
+  createWaveshaper,
+  addInsert,
+  getContext,
+  setNodeGain,
+  getInsert,
+  setCurveAmount,
+} from './stateful-web-audio';
 import {init as initEvents} from './events';
-import {init as initScene, createScene} from './scene'; */
-import {init, start} from './stateful-web-audio';
+import {createScene} from './scene';
+import tracks from './tracks';
 
-//const context = new (window.AudioContext || window.webkitAudioContext)();
-
-/*const state = {
-  context,
-  scene: initScene(),
-  sequencer: initSequencer(context),
-  player: initPlayer(context),
-  loader: initLoader(),
+const newScene = ctx => {
+  const scene = createScene();
+  setScene(ctx, scene);
+  setCurveAmount(getInsert(ctx, 'master', 0), scene.master.distortionAmount);
 };
 
-startTick(state, tick);
-initEvents(document, state);
-initMixer(state);
-createScene(state);
-loadPlayer(state);
-start(state);*/
+const createMasterEffects = ctx => {
+  const context = getContext(ctx);
+  const masterDistortion = createInsertEffect({context,
+    effect: createWaveshaper({
+      context, amount: 40
+    })
+  });
+  addInsert(ctx, 'master', masterDistortion);
+  setNodeGain(masterDistortion.wet, 0.3);
+  setNodeGain(masterDistortion.dry, 0.7);
+};
 
 const ctx = init();
+createMixer(ctx, {
+  [tracks.BD]: {gain: 0.7},
+  [tracks.CL]: {gain: 0.5},
+  [tracks.SN]: {gain: 0.4},
+  [tracks.ST]: {gain: 0.3},
+  [tracks.BS]: {gain: 0.4},
+  [tracks.RD]: {gain: 0.2},
+});
+createMasterEffects(ctx);
+newScene(ctx);
 start(ctx);
-//start(state2);
+initEvents(document, () => newScene(ctx));

@@ -1,12 +1,5 @@
-/*import {randRange, maybe, sample, rand} from './util';
 import {commit} from './state';
-import tracks from './tracks';
-import {createPattern} from './pattern';
-
-import catalog from './catalog';
-import {setCurveAmount} from './components/waveshaper';
-import {loadSound} from './player';
-*/
+import {loadSample} from './loader';
 
 export const initialState = ({
   parts: {},
@@ -14,3 +7,15 @@ export const initialState = ({
   shufflePercentage: 0,
   tempo: 120,
 });
+
+const loadSamples = ctx => {
+  const {state: {scene: {parts}}} = ctx;
+  Object.keys(parts).forEach(part => {
+    loadSample(ctx, parts[part].sample);
+  });
+};
+
+export const setScene = (ctx, scene) => {
+  commit(ctx, 'scene', scene);
+  loadSamples(ctx);
+};

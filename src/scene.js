@@ -1,23 +1,12 @@
 import {randRange, maybe, sample, rand} from './util';
-import {commit} from './state';
 import tracks from './tracks';
 import {createPattern} from './pattern';
 import styles, {
   FOURBYFOUR, BROKEN, OFFBEATS, RANDBUSY, TWOANDFOUR, RANDSPARSE, OCCASIONAL
 } from './styles';
 import catalog from './catalog';
-import {setCurveAmount} from './components/waveshaper';
-import {loadSound} from './player';
 
-const getInitialState = () => ({
-  parts: {},
-  master: {},
-  styles,
-});
-
-export const init = getInitialState;
-
-const randomizeStyle = (styles, track) => {
+const randomizeStyle = track => {
   switch (track) {
     case tracks.BD:
       return maybe(75, FOURBYFOUR, BROKEN);
@@ -47,20 +36,20 @@ const randomizeSample = track => {
   return `${key}${randRange(1, numChoices)}`;
 };
 
-const createPart = (state, styles, track) => {
-  const style = randomizeStyle(styles, track);
+const urlify = sample => `samples/${sample}.ogg`;
+
+const createPart = track => {
+  const style = randomizeStyle(track);
   const sample = randomizeSample(track);
-  loadSound(state, track, sample);
   return {
     style,
-    sample,
+    sample: urlify(sample),
     pattern: createPattern(track, style),
   };
 };
 
-export const createScene = state => {
+export const createScene = () => {
   const newScene = {
-    ...getInitialState(),
     master: {
       distortionAmount: randRange(0, 40)
     },
@@ -68,7 +57,6 @@ export const createScene = state => {
     shufflePercentage: maybe(50, 0, randRange(1, 30)),
     parts: {}
   };
-  const {scene: {styles}} = state;
   [
     tracks.BD,
     tracks.CL,
@@ -76,25 +64,21 @@ export const createScene = state => {
     tracks.PR,
     tracks.BS
   ].forEach(track => {
-    newScene.parts[track] = createPart(state, styles, track);
+    newScene.parts[track] = createPart(track);
   });
   if (rand(33)) {
-    newScene.parts[tracks.HC] = createPart(state, styles, tracks.HC);
+    newScene.parts[tracks.HC] = createPart(tracks.HC);
   } else if (rand(33)) {
-    newScene.parts[tracks.HO] = createPart(state, styles, tracks.HO);
+    newScene.parts[tracks.HO] = createPart(tracks.HO);
   } else {
-    newScene.parts[tracks.HO] = createPart(state, styles, tracks.HO);
-    newScene.parts[tracks.HC] = createPart(state, styles, tracks.HC);
+    newScene.parts[tracks.HO] = createPart(tracks.HO);
+    newScene.parts[tracks.HC] = createPart(tracks.HC);
   }
   if (rand(70)) {
-    newScene.parts[tracks.RD] = createPart(state, styles, tracks.RD);
+    newScene.parts[tracks.RD] = createPart(tracks.RD);
   }
   if (rand(50)) {
-    newScene.parts[tracks.SN] = createPart(state, styles, tracks.SN);
+    newScene.parts[tracks.SN] = createPart(tracks.SN);
   }
-  commit(state, 'scene', newScene);
-  setCurveAmount(
-    state.player.mixer.master.inserts[0].effect,
-    newScene.master.distortionAmount
-  );
+  return newScene;
 };

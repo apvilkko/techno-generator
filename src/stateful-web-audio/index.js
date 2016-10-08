@@ -1,6 +1,19 @@
 import {startTick} from './src/worker';
 import * as seq from './src/sequencer';
 import * as scene from './src/scene';
+import * as mixer from './src/mixer';
+
+export {setScene} from './src/scene';
+export {
+  createInsertEffect,
+  createMixer,
+  addInsert,
+  getInsert,
+  setNodeGain,
+  setTrackGain,
+} from './src/mixer';
+export * from './src/components';
+export {getContext} from './src/util';
 
 export const start = ctx => {
   startTick(ctx, seq.tick);
@@ -11,12 +24,16 @@ const initialState = {
   instances: {},
   sequencer: seq.initialState,
   scene: scene.initialState,
+  mixer: mixer.initialState,
 };
 
-const reinitInstances = state => {
-  // TODO
-  return state;
+const initialRuntime = {
+  instances: {},
+  buffers: {},
 };
+
+// TODO
+const reinitInstances = state => state;
 
 const addInstance = (state, id, name) => ({
   ...state,
@@ -37,11 +54,10 @@ const reinit = oldState => {
 };
 
 export const init = (oldState = null) => {
-  const runtime = {instances: {}};
+  const runtime = initialRuntime;
   initAudioContext(runtime);
   const seqRuntime = seq.initialRuntime(runtime);
   runtime.sequencer = seqRuntime;
   const state = reinit(oldState);
-  console.log(runtime, runtime.sequencer, seqRuntime);
   return {state, runtime};
 };
