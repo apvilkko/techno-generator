@@ -1,4 +1,4 @@
-import {randRange, maybe, sample, rand} from './util';
+import {randRange, randRangeFloat, maybe, sample, rand} from './util';
 import tracks from './tracks';
 import {createPattern} from './pattern';
 import styles, {
@@ -48,6 +48,27 @@ const createPart = track => {
   };
 };
 
+const reverbSpec = (dry, wet) => ({
+  effect: 'Reverb',
+  params: {dry, wet},
+  sample: urlify(randomizeSample('impulse'))
+});
+
+const randomizeEffects = key => track => {
+  const inserts = [];
+  switch (key) {
+    case tracks.BD:
+      inserts.push(reverbSpec(1, randRangeFloat(0.1, 0.5)));
+      break;
+    case tracks.ST:
+      inserts.push(reverbSpec(1, randRangeFloat(0.1, 0.8)));
+      break;
+    default:
+      break;
+  }
+  return {...track, inserts};
+};
+
 export const createScene = () => {
   const newScene = {
     master: {
@@ -63,8 +84,8 @@ export const createScene = () => {
     tracks.ST,
     tracks.PR,
     tracks.BS
-  ].forEach(track => {
-    newScene.parts[track] = createPart(track);
+  ].forEach(key => {
+    newScene.parts[key] = randomizeEffects(key)(createPart(key));
   });
   if (rand(33)) {
     newScene.parts[tracks.HC] = createPart(tracks.HC);

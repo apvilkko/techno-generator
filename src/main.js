@@ -10,6 +10,9 @@ import {
   setNodeGain,
   getInsert,
   setCurveAmount,
+  play,
+  pause,
+  isPlaying,
 } from './stateful-web-audio';
 import {init as initEvents} from './events';
 import {createScene} from './scene';
@@ -29,8 +32,18 @@ const createMasterEffects = ctx => {
     })
   });
   addInsert(ctx, 'master', masterDistortion);
-  setNodeGain(masterDistortion.wet, 0.3);
+  setNodeGain(masterDistortion.wet, 0.4);
   setNodeGain(masterDistortion.dry, 0.7);
+};
+
+const toggle = ctx => {
+  const playing = isPlaying(ctx);
+  if (playing) {
+    pause(ctx);
+  } else {
+    play(ctx);
+  }
+  return !playing;
 };
 
 const ctx = init();
@@ -45,4 +58,9 @@ createMixer(ctx, {
 createMasterEffects(ctx);
 newScene(ctx);
 start(ctx);
-initEvents(document, () => newScene(ctx));
+
+const actions = {
+  newScene: () => newScene(ctx),
+  toggle: () => toggle(ctx),
+};
+initEvents(document, actions);

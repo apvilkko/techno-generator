@@ -22,7 +22,7 @@ export const createInsertEffect = ({context, effect}) => {
   return {dry, wet, effect, input, output};
 };
 
-const createTrack = ({gain}) => ({gain, inserts: []});
+const createTrack = spec => ({...spec, inserts: []});
 
 export const setNodeGain = (node, value) => {
   node.gain.value = value; // eslint-disable-line
@@ -35,39 +35,56 @@ export const setTrackGain = (mixer, track, value) => {
 export const getInsert = (ctx, key, index) =>
   ctx.state.mixer.tracks[key].inserts[index].effect;
 
-export const addInsert = (ctx, key, insertEffect) => {
+const mixBus = tracks => tracks.master.mixBus;
+
+export const addInsert = (ctx, key, insertEffect, index = -1) => {
   const {state: {mixer: {tracks}}} = ctx;
   const inserts = tracks[key].inserts;
-  if (key !== 'master') {
-    if (inserts.length > 0) {
-      inserts[inserts.length - 1].disconnect(tracks.master.gain);
-    }
-    if (inserts.length === 0) {
-      disconnect(tracks[key].gain, tracks.master.gain);
-      connect(tracks[key].gain, insertEffect);
-    }
-    connect(insertEffect, tracks.master.gain);
+  const dest = mixBus(tracks);
+  const pos = index < 0 ? inserts.length : index;
+  const addingToEnd = pos === inserts.length;
+  if (pos > 0) {
+    const next = addingToEnd ? dest : inserts[pos];
+    disconnect(inserts[pos - 1], next);
   }
-  commit(ctx, ['mixer', 'tracks', key, 'inserts'], inserts.concat(insertEffect));
+  if (inserts.length === 0) {
+    try {
+      disconnect(tracks[key].gain, dest);
+    } catch (err) {
+      console.log(err); // eslint-disable-line no-console
+    }
+    connect(tracks[key].gain, insertEffect);
+  }
+  const next = pos >= (inserts.length - 1) ? dest : inserts[pos + 1];
+  connect(insertEffect, next);
+  commit(ctx, ['mixer', 'tracks', key, 'inserts'],
+    [...inserts.slice(0, pos - 1), insertEffect, ...inserts.slice(pos + 1)]);
 };
 
 export const createMixer = (ctx, trackSpec) => {
   const context = getContext(ctx);
-  const masterLimiter = createCompressor({
-    context, destination: context.destination
-  });
   const masterGain = createVCA({
-    context, gain: 0.5, destination: masterLimiter
+    context, gain: 1, destination: context.destination
+  });
+  const masterLimiter = createCompressor({
+    context, destination: masterGain
+  });
+  const mixBus = createVCA({
+    context, gain: 0.4, destination: masterLimiter
   });
   const tracks = {
-    master: createTrack({gain: masterGain}),
+    master: createTrack({
+      gain: masterGain,
+      limiter: masterLimiter,
+      mixBus,
+    }),
   };
   Object.keys(trackSpec).forEach(track => {
     tracks[track] = createTrack({
       gain: createVCA({
         context,
         gain: trackSpec[track].gain || 0.6,
-        destination: masterGain
+        destination: mixBus
       })
     });
   });

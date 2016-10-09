@@ -12,12 +12,13 @@ export {
   setNodeGain,
   setTrackGain,
 } from './src/mixer';
+export {play, pause, isPlaying} from './src/sequencer';
 export * from './src/components';
 export {getContext} from './src/util';
 
 export const start = ctx => {
   startTick(ctx, seq.tick);
-  seq.start(ctx);
+  seq.play(ctx);
 };
 
 const initialState = {

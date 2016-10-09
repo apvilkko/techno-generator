@@ -1,5 +1,5 @@
-export const randRange = (min, max) =>
-  min + Math.floor(Math.random() * (max - min + 1));
+export const randRange = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
+export const randRangeFloat = (min, max) => min + (Math.random() * (max - min));
 
 export const rand = value => Math.random() < (value / 100.0);
 

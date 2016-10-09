@@ -1,5 +1,5 @@
 import {commit} from './state';
-import {play} from './player';
+import {playNote} from './player';
 import {getContext} from './util';
 
 export const initialState = ({
@@ -21,7 +21,7 @@ const scheduleNote = ctx => {
     const track = scene.parts[key].pattern;
     const note = track[currentNote % track.length];
     if (note.velocity) {
-      play(ctx, key, note);
+      playNote(ctx, key, note);
     }
   });
 };
@@ -64,7 +64,13 @@ export const tick = ctx => {
   }
 };
 
-export const start = ctx => {
+export const play = ctx => {
   commit(ctx, 'sequencer.playing', true);
   ctx.runtime.sequencer.nextNoteTime = getContext(ctx).currentTime;
 };
+
+export const pause = ctx => {
+  commit(ctx, 'sequencer.playing', false);
+};
+
+export const isPlaying = ctx => ctx.state.sequencer.playing;

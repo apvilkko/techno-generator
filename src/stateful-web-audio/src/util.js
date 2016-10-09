@@ -12,17 +12,22 @@ const log = (from, to, disconnect) => {
   );
 };
 
+const output = from => (from.output ? from.output : from);
+const input = to => (to.input ? to.input : to);
+
 export const connect = (from, to) => {
   log(from, to);
-  (from.output ? from.output : from).connect(to.input ? to.input : to);
+  output(from).connect(input(to));
 };
 
 export const disconnect = (node, from) => {
+  const src = output(node);
+  const dest = input(from);
   if (from) {
     log(node, from, true);
-    node.disconnect(from);
+    src.disconnect(dest);
     return;
   }
   log(node, null, true);
-  node.disconnect();
+  src.disconnect();
 };
