@@ -1,6 +1,6 @@
 export const DEBUG = false;
-const debugEl = typeof document === 'undefined' ? null :
-  document.getElementById('debug');
+const debugEl =
+  typeof document === "undefined" ? null : document.getElementById("debug");
 
 export const withDebug = fn => state => {
   fn(state);
